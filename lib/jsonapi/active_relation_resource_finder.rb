@@ -409,7 +409,7 @@ module JSONAPI
             associations = _lookup_association_chain([records.model.to_s, *model_names])
             joins_query = _build_joins([records.model, *associations])
 
-            order_by_query = "#{_join_table_name(associations.last)}.#{column_name} #{direction}"
+            order_by_query = "#{associations.last.table_name}.#{column_name} #{direction}"
             records.joins(joins_query).order(order_by_query)
           else
             field = _attribute_delegated_name(field)
@@ -434,15 +434,6 @@ module JSONAPI
           joins = joins.empty? ? [association.name] : [association.name => joins]
         end
         joins
-      end
-
-      # _sorting is appended to avoid name clashes with manual joins eg. overridden filters
-      def _join_table_name(association)
-        if association.is_a?(ActiveRecord::Reflection::AssociationReflection)
-          association.name
-        else
-          association.table_name
-        end
       end
 
       # Assumes ActiveRecord's counting. Override if you need a different counting method
