@@ -429,10 +429,9 @@ module JSONAPI
       end
 
       def _build_joins(associations)
-        joins = []
-
-        associations.inject do |_prev, current|
-          joins << current.name
+        joins = [associations.last]
+        associations[1..-2].reverse.each do |association|
+          joins = [association.name => joins]
         end
         joins
       end
@@ -440,7 +439,7 @@ module JSONAPI
       # _sorting is appended to avoid name clashes with manual joins eg. overridden filters
       def _join_table_name(association)
         if association.is_a?(ActiveRecord::Reflection::AssociationReflection)
-          "#{association.name}_sorting"
+          association.name
         else
           association.table_name
         end
