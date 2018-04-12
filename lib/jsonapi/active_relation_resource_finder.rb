@@ -429,9 +429,9 @@ module JSONAPI
       end
 
       def _build_joins(associations)
-        joins = [associations.last]
-        associations[1..-2].reverse.each do |association|
-          joins = [association.name => joins]
+        joins = []
+        associations[1..-1].reverse.each do |association|
+          joins = joins.empty? ? [association.name] : [association.name => joins]
         end
         joins
       end
