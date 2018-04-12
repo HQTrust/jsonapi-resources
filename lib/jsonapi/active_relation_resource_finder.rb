@@ -431,10 +431,10 @@ module JSONAPI
       def _build_joins(associations)
         joins = []
 
-        associations.inject do |prev, current|
+        associations.inject do |_prev, current|
           joins << current.name
         end
-        joins.join(",")
+        joins
       end
 
       # _sorting is appended to avoid name clashes with manual joins eg. overridden filters
