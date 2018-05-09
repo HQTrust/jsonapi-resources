@@ -405,6 +405,7 @@ module JSONAPI
         subclass.caching(_caching)
         subclass.paginator(_paginator)
         subclass._attributes = (_attributes || {}).dup
+        subclass._custom_actions = (_custom_actions || {}).dup
 
         subclass._model_hints = (_model_hints || {}).dup
 
