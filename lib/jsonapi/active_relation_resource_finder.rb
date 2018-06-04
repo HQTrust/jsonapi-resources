@@ -181,14 +181,6 @@ module JSONAPI
 
         order_options = related_klass.construct_order_options(sort_criteria)
 
-        paginator = options[:paginator]
-
-        # ToDO: Remove count check. Currently pagination isn't working with multiple source_rids (i.e. it only works
-        # for show relationships, not related includes).
-        if paginator && source_rids.count == 1
-          records = related_klass.apply_pagination(records, paginator, order_options)
-        end
-
         records = related_klass.apply_basic_sort(records, order_options, context: context)
 
         filters = options.fetch(:filters, {})
