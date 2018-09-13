@@ -172,6 +172,7 @@ module JSONAPI
       return obj_hash if source.nil?
 
       fetchable_fields = Set.new(source.fetchable_fields)
+      fetchable_relationships = Set.new(source.fetchable_relationships)
 
       if source.is_a?(JSONAPI::CachedResponseFragment)
         id_format = source.resource_klass._attribute_options(:id)[:format]
@@ -183,7 +184,7 @@ module JSONAPI
         obj_hash['links'] = source.links_json if source.links_json
         obj_hash['attributes'] = source.attributes_json if source.attributes_json
 
-        relationships = cached_relationships_hash(source, fetchable_fields, relationship_data)
+        relationships = cached_relationships_hash(source, fetchable_relationships, relationship_data)
         obj_hash['relationships'] = relationships unless relationships.nil? || relationships.empty?
 
         obj_hash['meta'] = source.meta_json if source.meta_json
@@ -202,7 +203,7 @@ module JSONAPI
         attributes = attributes_hash(source, fetchable_fields)
         obj_hash['attributes'] = attributes unless attributes.empty?
 
-        relationships = relationships_hash(source, fetchable_fields, relationship_data)
+        relationships = relationships_hash(source, fetchable_relationships, relationship_data)
         obj_hash['relationships'] = relationships unless relationships.nil? || relationships.empty?
 
         meta = meta_hash(source)
@@ -277,8 +278,8 @@ module JSONAPI
       (custom_links.is_a?(Hash) && custom_links) || {}
     end
 
-    def relationships_hash(source, fetchable_fields, relationship_data)
-      relationships = source.class._relationships.select{|k,_v| fetchable_fields.include?(k) }
+    def relationships_hash(source, fetchable_relationships, relationship_data)
+      relationships = source.class._relationships.select{|k,_v| fetchable_relationships.include?(k) }
       field_set = supplying_relationship_fields(source.class) & relationships.keys
 
       relationships.each_with_object({}) do |(name, relationship), hash|
@@ -296,11 +297,11 @@ module JSONAPI
       end
     end
 
-    def cached_relationships_hash(source, fetchable_fields, relationship_data)
+    def cached_relationships_hash(source, fetchable_relationships, relationship_data)
       relationships = {}
 
       source.relationships.try(:each_pair) do |k,v|
-        if fetchable_fields.include?(unformat_key(k).to_sym)
+        if fetchable_relationships.include?(unformat_key(k).to_sym)
           relationships[k.to_sym] = v
         end
       end

@@ -122,6 +122,11 @@ module JSONAPI
       self.class.fields
     end
 
+    # Override this on a resource instance to override the fetchable relationship keys
+    def fetchable_relationships
+      fetchable_fields
+    end
+
     def model_error_messages
       _model.errors.messages
     end
