@@ -5,10 +5,26 @@ module JSONAPI
     # Processing custom actions results for single model
     # It will handle action result if returns one single model
     #
-    # @return [ResourceOperationResult]
+    # @return [ResourceSetOperationResult]
     def custom_actions_instance
       resource = resource_klass.resource_for(params[:result], context)
-      JSONAPI::ResourceOperationResult.new(:ok, resource, result_options)
+
+      include_directives = params[:include_directives]
+      fields = params[:fields]
+      serializer = params[:serializer]
+
+      find_options = {
+        context: context,
+        fields: fields,
+        filters: { resource_klass._primary_key => resource.id }
+      }
+
+      resource_set = find_resource_set(resource_klass,
+                                       include_directives,
+                                       serializer,
+                                       find_options)
+
+      JSONAPI::ResourceSetOperationResult.new(:ok, resource_set, result_options)
     rescue
       JSONAPI::OperationResult.new(:accepted, result_options)
     end
@@ -16,10 +32,28 @@ module JSONAPI
     # Processing custom actions results for many models
     # It will handle action result if returns array or ActiveRecord::Relation
     #
-    # @return [ResourcesOperationResult]
+    # @return [ResourceSetOperationResult]
     def custom_actions_collection
       resources = resource_klass.resources_for(params[:results], context)
-      JSONAPI::ResourcesOperationResult.new(:ok, resources, result_options)
+
+      include_directives = params[:include_directives]
+      fields = params[:fields]
+      serializer = params[:serializer]
+
+      find_options = {
+        context: context,
+        fields: fields,
+        filters: { resource_klass._primary_key => resources.map(&:id) }
+      }
+
+      resource_set = find_resource_set(resource_klass,
+                                       include_directives,
+                                       serializer,
+                                       find_options)
+
+      JSONAPI::ResourceSetOperationResult.new(:ok, resource_set, result_options)
+    rescue
+      JSONAPI::OperationResult.new(:accepted, result_options)
     end
   end
 end
