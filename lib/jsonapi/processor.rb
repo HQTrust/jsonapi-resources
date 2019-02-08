@@ -197,8 +197,8 @@ module JSONAPI
             find_options)
       end
 
-      if (JSONAPI.configuration.top_level_meta_include_page_count && opts[:record_count])
-        opts[:page_count] = paginator.calculate_page_count(opts[:record_count])
+      if (JSONAPI.configuration.top_level_meta_include_page_count && paginator && opts[:record_count])
+        opts[:page_count] = paginator ? paginator.calculate_page_count(page_options[:record_count]) : 1
       end
 
       opts[:pagination_params] = if paginator && JSONAPI.configuration.top_level_links_include_pagination
